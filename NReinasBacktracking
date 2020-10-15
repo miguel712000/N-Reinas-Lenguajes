@@ -7,8 +7,23 @@
 
 (define reinas
   (lambda(n)
-    (reinasAux '() n)))
+    (reinasAux '(0) n n)))
 
-;(define reinasAux
-;  (lambda ()
-    
+(define reinasAux
+  (lambda (lista n limite)
+    (cond ((equal? (car lista) limite)
+           (cond((equal? n limite) '())
+                 (else (reinasAux (cons (+1 (cadr lista)) (cddr lista)) (+ n 1) limite))))
+          ((valido? lista) ;falta programar esta funcion
+           (cond((equal? n 1) lista)
+                 (else (reinasAux (cons 0 lista) (- n 1) limite))))
+          (else (reinasAux (cons (+ 1 (car lista)) (cdr lista)) n limite)))))
+          
+(define valido? ;por ahora es una funcion tonta que no debe ser usada al final
+  (lambda (lista)
+    (escogeRandom #t #f)))
+
+(define escogeRandom ;parte de la funcion tonta anterior
+  (lambda (a b)
+    (cond ((zero? (random 2)) a)
+          (else b))))
