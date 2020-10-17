@@ -1,29 +1,36 @@
 #lang racket
 
-;(define listaN
-;  (lambda (n lista)
-;    (cond ((zero? n) lista)
-;          (else (listaN (- n 1) (append '(-1) lista))))))
-
 (define reinas
-  (lambda(n)
-    (reinasAux '(0) n n)))
+  (lambda(n);4
+    (reinasAux '(0) n n)));'(0) 4 4 
 
 (define reinasAux
-  (lambda (lista n limite)
-    (cond ((equal? (car lista) limite)
+  (lambda (lista n limite);'(0) 4 4 
+    (cond ((equal? (car lista) limite);0 4 #f 
            (cond((equal? n limite) '())
-                 (else (reinasAux (cons (+1 (cadr lista)) (cddr lista)) (+ n 1) limite))))
-          ((valido? lista) ;falta programar esta funcion
+                 (else (reinasAux (cons (+ 1 (cadr lista)) (cddr lista)) (+ n 1) limite))))
+          ((valido? lista n)
            (cond((equal? n 1) lista)
                  (else (reinasAux (cons 0 lista) (- n 1) limite))))
           (else (reinasAux (cons (+ 1 (car lista)) (cdr lista)) n limite)))))
           
-(define valido? ;por ahora es una funcion tonta que no debe ser usada al final
-  (lambda (lista)
-    (escogeRandom #t #f)))
+(define valido? 
+  (lambda (lista n);'(1 0 2) 2
+    (cond ((or (ormap (lambda (x) (= x (car lista))) (cdr lista)) (diagonal? lista (- (longitud lista) 1) 0)) #f)
+          (else #t))))
 
-(define escogeRandom ;parte de la funcion tonta anterior
-  (lambda (a b)
-    (cond ((zero? (random 2)) a)
-          (else b))))
+(define diagonal?
+  (lambda (lista n i)  ;    (diagonal? '(1 0) 4 0)                                              '(1 0 2) 2 -> |(car lista)-(cadr lista)|==| 0++ - n |
+    (cond ((= (longitud lista) 1) #f)
+          ((= (abs(- (car (invert lista)) (car lista))) (abs(- i n))) #t) ;|(= |0-1| |0-4|)|
+          (else( diagonal? (invert(cdr(invert lista))) n (+ i 1))))))
+
+(define invert
+  (lambda (l)
+    (cond ((null? l) l)
+          (else (append (invert (cdr l)) (list (car l)))))))
+  
+(define longitud
+  (lambda (l)
+    (cond ((null? l) 0)
+          (else (+ 1 (longitud (cdr l)))))))
