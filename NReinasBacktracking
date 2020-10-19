@@ -3,7 +3,7 @@
 (define backtrackingNReinas
   (lambda(n cont)
     (cond ((or(>= 3 n) (< cont 1)) '())
-          (else(reinasAux '(0) n n cont)))))
+          (else (reinasAux '(0) n n cont)))))
 
 (define reinasAux
   (lambda (lista n limite cont)
@@ -11,28 +11,32 @@
           ((equal? (car lista) limite)
            (cond((equal? n limite) '())
                  (else (reinasAux (cons (+ 1 (cadr lista)) (cddr lista)) (+ n 1) limite cont))))
-          ((valido? lista n)
+          ((valido? lista)
            (cond ((equal? n 1) (append (list lista) (reinasAux (cons (+ 1 (car lista)) (cdr lista)) n limite (- cont 1))))
                  (else (reinasAux (cons 0 lista) (- n 1) limite cont))))
           (else (reinasAux (cons (+ 1 (car lista)) (cdr lista)) n limite cont)))))
 
 (define valido? 
-  (lambda (lista n)
+  (lambda (lista)
     (cond ((or (ormap (lambda (x) (= x (car lista))) (cdr lista)) (diagonal? lista (- (longitud lista) 1) 0)) #f)
           (else #t))))
 
 (define diagonal?
   (lambda (lista n i)
-    (cond ((= (longitud lista) 1) #f)
-          ((= (abs(- (car (invert lista)) (car lista))) (abs(- i n))) #t)
-          (else( diagonal? (invert(cdr(invert lista))) n (+ i 1))))))
-
-(define invert
-  (lambda (l)
-    (cond ((null? l) l)
-          (else (append (invert (cdr l)) (list (car l)))))))
+    (cond ((equal? (longitud lista) 1) #f)
+          ((equal? (abs(- (car (last lista)) (car lista))) (abs(- i n))) #t)
+          (else( diagonal? (drop-right lista 1) n (+ i 1))))))
   
 (define longitud
   (lambda (l)
     (cond ((null? l) 0)
           (else (+ 1 (longitud (cdr l)))))))
+
+(define last
+  (lambda (l)
+    (cond ((null? (cdr l)) l)
+          (else (last (cdr l))))))
+
+(define nada
+  (lambda(f)
+    0))
