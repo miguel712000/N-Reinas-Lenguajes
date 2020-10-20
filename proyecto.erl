@@ -26,8 +26,21 @@
 		 cruce/4]).
 
 
+% Se exportan las funciones de NUCLEO
+-export([generarPoblacion/1,
+		 generarPoblacionAux/3,
+		 hacerLista/1,
+		 hacerListaAux/2,
+		 geneticosNReinas/1,
+		 geneticos/5,
+		 geneticosAux/6,
+		 geneticosAux2/7]).
+
+
+
 % Se exportan las funciones de APOYO
--export([insertar/3,
+-export([shuffle/1,
+		 insertar/3,
 		 obtener/2,
 		 rellenarConVacias/2,
 		 elementoRandom/1,
@@ -42,7 +55,8 @@
 		 minimo/1,
 		 indiceDelMinimo/1,
 		 mitadUP/1,
-		 mitadAux/3]).
+		 mitadAux/3,
+		 esZero/1]).
 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FUNCION DE APTITUD>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -99,6 +113,7 @@ rellenando(Nueva_generacion, Poblacion, C) ->
 
 % Hace el llamado inicial para obtener la nueva generacion
 % retorna oficialmente la nueva generación
+% Recibe la lista
 getNuevaGeneracion(Poblacion, Elite) ->
 	rellenando(rellenarConVacias(Elite, length(Poblacion)), Poblacion,2).
 
@@ -145,24 +160,58 @@ cruce(Poblacion, Elite, N, Cant_poblacion) ->
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
-rellenarrLista()
-
+%<<<<<<<<<<<<<<<<<<<<<<<<<FUNCIONES NUCLEO, SE ENCARGAN DE CONECTAR TODO>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+%----------------------------------------------------------------------------------------
+%	Estas dos se encargan de generar la poblacion
+%----------------------------------------------------------------------------------------
 
 
+% Funcion encargada de generar la poblacion según el número de Reinas
+% Recibe un entero con el número de reinas
+generarPoblacion(N) -> generarPoblacionAux(N, N*4, 1).
+%Recibe el tamaño de cada sublista, el tamaño de la poblacion y un contador
+%devuelve una lista con sublistas
+generarPoblacionAux(_Tam, N, C) when C == N+1 -> [];
+generarPoblacionAux(Tam, N, C) -> [hacerLista(Tam) | generarPoblacionAux(Tam, N, C+1)].
+
+% Funcion que se encarga de devolver una lista aleatoria de nums entre 1 y N
+% recibe un entero
+hacerLista(N) -> hacerListaAux(N, 1).
+%recibe el tamaño de la lista y un contador, retorna una lista desordenada de manera random
+hacerListaAux(N, C) when C == N+1 -> [];
+hacerListaAux(N, C) -> shuffle([C | hacerListaAux(N,C+1)]).
+
+%----------------------------------------------------------------------------------------
+
+geneticosNReinas(N) when N =< 3 -> 'ERROR, INSERTE UN VALOR ENTERO MAYOR A 3';
+geneticosNReinas(N) -> geneticos(N, 0, 400, generarPoblacion(N), N*4).
+
+% io:format("~p ~n", [C])
+
+geneticos(N, Cruces, TotalCruces, Poblacion, Cant_poblacion) ->
+	geneticosAux(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, funcion_aptitud(Poblacion, N)).
 
 
+geneticosAux(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite) ->
+	geneticosAux2(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite, esZero(minimo(Elite))).
 
 
-
-
+geneticosAux2(_N, _Cruces, _TotalCruces, _Poblacion, _Cant_poblacion, Elite, Minimo)
+	when Minimo == true -> Elite;
+geneticosAux2(_N, Cruces, TotalCruces, _Poblacion, _Cant_poblacion, Elite, _Minimo)
+	when Cruces == TotalCruces+1 -> Elite;
+geneticosAux2(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite, _Minimo) ->  io:format("~p ~n", [Elite]),
+	geneticosAux2(N, Cruces+1, TotalCruces, cruce(Poblacion, Elite, N, Cant_poblacion), Cant_poblacion, funcion_aptitud(Poblacion,N), esZero(minimo(funcion_aptitud(Poblacion,N)))).
 
 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FUNCIONES DE APOYO>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+
+%Recibe una lista y la devuelve desordenada aleatoriamente
+shuffle(L) -> [Y||{_,Y} <- lists:sort([ {rand:uniform(), N} || N <- L])].
 
 % Devuelve la lista de nueva generacion con la Elite en frente
 % y el resto de la lista en puras listas vacias 
@@ -230,6 +279,9 @@ mitadAux(L, I, C) when C == I -> mitadAux(L, I, C+1);
 mitadAux([_H|T], I, C) when C =< I -> mitadAux(T, I, C+1);
 mitadAux([H|T], I, C) -> [H| mitadAux(T,I,C)].
 
+
+esZero(E) when E == 0 -> true;
+esZero(E) when E =/= 0 -> false. 
 
 % Insertar en una lista
 % Recibe la posición donde insertar, el elemento a insertar y la lista donde se hace
