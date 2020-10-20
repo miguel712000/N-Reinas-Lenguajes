@@ -198,11 +198,13 @@ geneticosAux(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite) ->
 	geneticosAux2(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite, esZero(minimo(Elite))).
 
 
-geneticosAux2(_N, _Cruces, _TotalCruces, _Poblacion, _Cant_poblacion, Elite, Minimo)
-	when Minimo == true -> Elite;
-geneticosAux2(_N, Cruces, TotalCruces, _Poblacion, _Cant_poblacion, Elite, _Minimo)
-	when Cruces == TotalCruces+1 -> Elite;
-geneticosAux2(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite, _Minimo) ->  io:format("~p ~n", [Elite]),
+geneticosAux2(_N, _Cruces, _TotalCruces, Poblacion, _Cant_poblacion, Elite, Minimo)
+	when Minimo == true -> obtener(indiceDelMinimo(Elite),Poblacion);
+
+geneticosAux2(_N, Cruces, TotalCruces, Poblacion, _Cant_poblacion, Elite, _Minimo)
+	when Cruces == TotalCruces+1 -> obtener(indiceDelMinimo(Elite),Poblacion);
+
+geneticosAux2(N, Cruces, TotalCruces, Poblacion, Cant_poblacion, Elite, _Minimo) -> io:format("~p ~n", [obtener(indiceDelMinimo(Elite),Poblacion)]),
 	geneticosAux2(N, Cruces+1, TotalCruces, cruce(Poblacion, Elite, N, Cant_poblacion), Cant_poblacion, funcion_aptitud(Poblacion,N), esZero(minimo(funcion_aptitud(Poblacion,N)))).
 
 
